@@ -20,31 +20,44 @@ To fine-tune the ByT5 model on a custom dataset:
     Hypothesis: Input text (e.g., incorrect text).
     Corrected Hypothesis: Target text (e.g., corrected text).
    Run the fine-tuning script:
+```bash
+python inference.py
+```
 
-python finetuning.py
-Inference
+
+### Inference
 To run inference using the fine-tuned model:
 
-Prepare a test dataset (testIC.csv) with a single column (Hypothesis) containing input text.
-Run the inference script:
+1. Prepare a test dataset (testIC.csv) with a single column (Hypothesis) containing input text.
+
+2. Run the inference script:
+```bash
 python inference.py
+```
+
 The script: Loads the fine-tuned model and tokenizer. Processes the test dataset. Generates predictions and saves them in output/predINDIC.csv.
 
-Evaluation
+### Evaluation
 To evaluate the model's performance on a test set
 
-Ensure the test dataset has the columns:
+1. Ensure the test dataset has the columns:
 
 Ground Truth: Reference text. Hypothesis: Model input text.
 
-The evaluation results, including predictions, are saved in output/predw2v.csv
+2. The evaluation results, including predictions, are saved in output/predw2v.csv
 
 Model Checkpoints
 The fine-tuned model and tokenizer are saved at:
-
+```bash
 Model/llmfine/
 Model/llmtoken/
+```
+
 Requirements
 Python 3.8+ Libraries: Hugging Face Transformers PyTorch Datasets JiWER WandB Accelerate scikit-learn pandas
 
+
+
+```bash
 pip install transformers datasets torch wandb accelerate jiwer scikit-learn pandas
+'''
