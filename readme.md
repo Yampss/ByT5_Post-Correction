@@ -57,7 +57,7 @@ The fine-tuned model and tokenizer are saved at:
 Model/llmfine/
 Model/llmtoken/
 ```
-(model checkpoints will only be released after final paper acceptance)
+(Model checkpoints will only be released after final paper acceptance at EMNLP)
 
 ### Requirements
 Python 3.8+ Libraries: Hugging Face Transformers PyTorch Datasets JiWER WandB Accelerate scikit-learn pandas
