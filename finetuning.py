@@ -9,12 +9,9 @@ from accelerate import Accelerator
 from sklearn.model_selection import train_test_split
 import wandb
 import time
-wandb.login(key="3626674037d75b951252567a261e23e1fe225301")
+wandb.init(project="1million")
 
-wandb.init(project="en")
-
-# Log invalid data to a text file
-invalid_lines_file = "/root//invalid_lines.txt"
+invalid_lines_file = "/raid/ganesh/pdadiga/ByT5/invalid_lines.txt"
 
 
 def log_invalid_line(line, reason):
@@ -38,11 +35,9 @@ class T5Collator:
             else:
                 invalid_lines.append(str(item))
 
-        
         with open("invalid_lines.txt", "a") as f:
             for line in invalid_lines:
                 f.write(line + "\n")
-        
         
         inputs = [item['input'] for item in valid_inputs]
         targets = [item['target'] for item in valid_inputs]
@@ -62,46 +57,40 @@ class T5Collator:
 
 print("start time", time.time())
 
+df = pd.read_csv('/raid/ganesh/pdadiga/ByT5/Dataset/inputdataset24.csv', header=None)
+df.columns = ['Hypothesis', 'Corrected Hypothesis']
 
-df = pd.read_csv('/workspace/telugu/output_with_metrics_vcorr_final.csv', header=None)
-df.columns = ['Filename','Original','Cleaned','UpdatedFilename','global_index','Transcription','WER','CER']
 
-# Split the data into train and validation sets
 train_df, val_df = train_test_split(df, test_size=0.1, random_state=42)
 
+train_df = train_df.rename(columns={"Hypothesis": "target", "Corrected Hypothesis": "input"})
+val_df = val_df.rename(columns={"Hypothesis": "target", "Corrected Hypothesis": "input"})
 
-train_df = train_df.rename(columns={"Cleaned": "input", "Original": "target"})
-val_df = val_df.rename(columns={"Cleaned": "input", "Original": "target"})
-train_df = train_df[["input", "target"]]
-val_df = val_df[["input", "target"]]
-
-# Remove rows where the input  is missing
 train_dataset = Dataset.from_pandas(train_df.dropna(subset=["input", "target"], how="any"))
 val_dataset = Dataset.from_pandas(val_df.dropna(subset=["input", "target"], how="any"))
 
-
-tokenizer = AutoTokenizer.from_pretrained("google/mt5-small")
+tokenizer = AutoTokenizer.from_pretrained("google/byt5-small")
 data_collator = T5Collator(tokenizer)
 
-config = AutoConfig.from_pretrained("google/mt5-small")
+config = AutoConfig.from_pretrained("google/byt5-small")
 config.dropout_rate = 0.2
 
 device = torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
 
-model = AutoModelForSeq2SeqLM.from_pretrained("google/mt5-small", config=config, device_map='cuda')
+model = AutoModelForSeq2SeqLM.from_pretrained("google/byt5-small", config=config, device_map='cuda')
 
 training_args = Seq2SeqTrainingArguments(
-    output_dir="/workspace/telugu/output/",
+    output_dir="/raid/ganesh/pdadiga/ByT5/output",
     num_train_epochs=30,
     per_device_train_batch_size=16,
     per_device_eval_batch_size=8,
-    logging_dir="/workspace/telugu/output/logs",
+    logging_dir="/raid/ganesh/pdadiga/ByT5/modellogs/logs",
     remove_unused_columns=False,
     logging_steps=25000,
-    save_steps=10000,
+    save_steps=25000,
     save_total_limit=3,
     eval_strategy="steps",
-    eval_steps=10000,
+    eval_steps=25000,
     metric_for_best_model="eval_loss",
     load_best_model_at_end=False,
     dataloader_num_workers=32,
@@ -127,5 +116,46 @@ print("Training Done!")
 print("training time", time.time())
 
 
-model.save_pretrained("/workspace/telugu/model/")
-tokenizer.save_pretrained("/workspace/telugu/model/")
+model.save_pretrained("/raid/ganesh/pdadiga/ByT5/Model/llmfine/output24third")
+tokenizer.save_pretrained("/raid/ganesh/pdadiga/ByT5/Model/llmtoken/output24third")
+
+def test_model(csv_file_path, model, tokenizer):
+    print(f"Loading test data from {csv_file_path}...")
+    test_df = pd.read_csv(csv_file_path, header=None)
+    test_df.columns = ['Ground Truth', 'Hypothesis']
+    
+   
+    test_df = test_df.rename(columns={"Ground Truth": "target", "Hypothesis": "input"})
+
+
+    test_df = test_df[test_df['input'].notna() & (test_df['input'] != 'N/A')]
+
+
+    test_dataset = Dataset.from_pandas(test_df)
+
+    predictions = []
+    # references = []
+
+    print("Generating predictions...")
+    for item in test_dataset:
+        input_text = item['input']
+
+       
+        input_ids = tokenizer(input_text, return_tensors="pt", padding=True, truncation=True).input_ids.to(device)
+        outputs = model.generate(input_ids, max_length=512)
+        decoded_output = tokenizer.decode(outputs[0], skip_special_tokens=True)
+
+        predictions.append(decoded_output)
+
+    
+
+    test_df = test_df.iloc[:len(predictions)]  # Ensure test_df aligns with predictions
+    test_df['Predictions'] = predictions
+    test_df.to_csv("/raid/ganesh/pdadiga/ByT5/output/predw2v.csv", index=False)
+    print("Predictions saved")
+    print("end time",time.time())
+
+
+
+test_csv_file_path = '/raid/ganesh/pdadiga/ByT5/Dataset/testw2v.csv'
+test_model(test_csv_file_path, model, tokenizer)
