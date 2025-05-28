@@ -1,0 +1,5 @@
+name: chrissenv
+channels:
+  - https://repo.anaconda.com/pkgs/main
+  - https://repo.anaconda.com/pkgs/r
+prefix: /root/miniconda3/envs/chrissenv
