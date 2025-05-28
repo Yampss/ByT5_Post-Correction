@@ -47,7 +47,8 @@ Ground Truth: Reference text. Hypothesis: Model input text.
 2. The evaluation results, including predictions, are saved in output/predw2v.csv
 
 ## Evaluated on different finetuned models
-See some latency results , result of the result include in paper (coming soon)/
+See some latency results , result of the result include in paper (coming soon). 
+
 ![](Components/Screenshot.png)
 
 ### Model Checkpoints
