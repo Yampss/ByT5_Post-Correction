@@ -1,6 +1,6 @@
 
 # Fine-Tuning and Inference with ByT5
-This repository demonstrates the fine-tuning and evaluation of ByT5, a tokenizer-free extension of the ![mT5 model](https://arxiv.org/abs/2010.11934). ByT5 operates directly on UTF-8 bytes, eliminating the need for subword tokenization and making it particularly suitable for tasks involving noisy text or language-sensitive applications.
+This repository demonstrates the fine-tuning and evaluation of ByT5, a tokenizer-free extension of the ![mT5 model](https://arxiv.org/abs/2010.11934) . ByT5 operates directly on UTF-8 bytes, eliminating the need for subword tokenization and making it particularly suitable for tasks involving noisy text or language-sensitive applications.
 
 This project fine-tunes ByT5 on a custom dataset for text correction and evaluates its performance on unseen test data.
 -----------------------------------------------------------------------------------------------------------
@@ -46,7 +46,7 @@ Ground Truth: Reference text. Hypothesis: Model input text.
 
 2. The evaluation results, including predictions, are saved in output/predw2v.csv
 
-Model Checkpoints
+### Model Checkpoints
 The fine-tuned model and tokenizer are saved at:
 ```bash
 Model/llmfine/
