@@ -15,13 +15,12 @@ Evaluation: Assess model performance on a test set and save results for analysis
 -----------------------------------------------------------------------------------------------------------
 Training and Fine-Tuning
 To fine-tune the ByT5 model on a custom dataset:
-
-1. Prepare a training dataset (inputdataset24.csv) with two columns:
+Prepare a training dataset (inputdataset.csv) with two columns:
     Hypothesis: Input text (e.g., incorrect text).
     Corrected Hypothesis: Target text (e.g., corrected text).
    Run the fine-tuning script:
 ```bash
-python inference.py
+python finetuning.py
 ```
 
 
