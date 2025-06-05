@@ -20,7 +20,7 @@ Prepare a training dataset (inputdataset.csv) with two columns:
     Corrected Hypothesis: Target text (e.g., corrected text).
    Run the fine-tuning script:
 ```bash
-python finetuning.py
+CUDA_VISIBLE_DEVICES=3,4 python finetuning.py
 ```
 
 
